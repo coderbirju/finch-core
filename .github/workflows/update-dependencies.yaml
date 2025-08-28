@@ -70,12 +70,15 @@ jobs:
           fetch-tags: true
       - name: Fetch tag for latest release
         id: nerdctl-latest-release
+        env:
+          OVERRIDE_TAG: ${{ github.event.inputs.nerdctl_tag_override }}
         run: |
-          tag=$(git tag --sort=-version:refname | head -n 1)
-          if [[ -n ${{ github.event.inputs.nerdctl_tag_override }} ]]; then
-            tag=${{ github.event.inputs.nerdctl_tag_override }}
+          if [ -n "$OVERRIDE_TAG" ]; then
+            echo "NERDCTL_TAG=$OVERRIDE_TAG" >> $GITHUB_OUTPUT
+          else
+            tag="$(git tag --sort=-version:refname | head -n 1)"
+            echo "NERDCTL_TAG=$tag" >> $GITHUB_OUTPUT
           fi
-          echo "NERDCTL_TAG=$tag" >> $GITHUB_OUTPUT
 
   update-container-runtime-full-archive:
     runs-on: ubuntu-latest
