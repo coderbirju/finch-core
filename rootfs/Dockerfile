@@ -1,6 +1,6 @@
 # syntax = docker/dockerfile:1.4
 
-FROM public.ecr.aws/docker/library/fedora:41 as build
+FROM public.ecr.aws/docker/library/fedora:42 as build
 
 WORKDIR /work
 
@@ -20,10 +20,6 @@ RUN cosign verify-blob \
     --certificate-identity keyless@projectsigstore.iam.gserviceaccount.com \
     --cert-oidc-issuer https://accounts.google.com \
     cosign-${COSIGN_VERSION}-1.x86_64.rpm
-
-RUN curl \
-  -o /etc/pki/rpm-gpg/RPM-GPG-KEY-fedora-40 \
-  https://raw.githubusercontent.com/rpm-software-management/distribution-gpg-keys/refs/heads/main/keys/fedora/RPM-GPG-KEY-fedora-40-primary
 
 RUN <<EOF cat >> /etc/yum.repos.d/fedora40.repo
 [fedora40]
@@ -45,7 +41,7 @@ RUN dnf download \
   --repo fedora40 \
   'qemu-user-static*'
 
-FROM public.ecr.aws/docker/library/fedora:41
+FROM public.ecr.aws/docker/library/fedora:42
 
 WORKDIR /work
 
@@ -62,7 +58,7 @@ RUN dnf group install -y cloud-server-environment --exclude=plymouth* \
     --exclude=audit-rules
 
 # Remove any existing qemu-user-static packages and then install
-# specific version of qemu-user-mode emulators from fedora40 repo.
+# specific version of qemu-user-mode emulators from Fedora 40.
 RUN dnf remove -y \
   qemu-user-static \
   qemu-user-static-aarch64 \
